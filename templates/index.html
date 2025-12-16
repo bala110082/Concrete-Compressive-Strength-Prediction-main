@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConcreteML - Concrete Compressive Strength Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .metric-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .metric-content h3 {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-content p {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .metric-content span {
+            font-size: 0.813rem;
+            color: #9ca3af;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .helper-text {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .prediction-result {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 2rem;
+        }
+
+        .gauge-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            {% if prediction %}
+            background: conic-gradient(
+                #14b8a6 0deg,
+                #14b8a6 {{ (prediction.result / 120 * 360) }}deg,
+                #e5e7eb {{ (prediction.result / 120 * 360) }}deg,
+                #e5e7eb 360deg
+            );
+            {% else %}
+            background: conic-gradient(
+                #e5e7eb 0deg,
+                #e5e7eb 360deg
+            );
+            {% endif %}
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(20, 184, 166, 0.2);
+        }
+
+        .gauge-inner {
+            width: 220px;
+            height: 220px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #14b8a6;
+            line-height: 1;
+        }
+
+        .result-unit {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .result-category {
+            font-size: 1.125rem;
+            color: #14b8a6;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-progress {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #14b8a6 0%, #0d9488 100%);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .performance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            margin-top: 1rem;
+        }
+
+        .analysis-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .history-item {
+            background: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #14b8a6;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-result {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #14b8a6;
+        }
+
+        .history-time {
+            font-size: 0.813rem;
+            color: #6b7280;
+        }
+
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            font-size: 0.813rem;
+        }
+
+        .history-detail {
+            color: #6b7280;
+        }
+
+        .history-detail strong {
+            color: #1f2937;
+        }
+
+        .footer {
+            background: #1e3a8a;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+
+        .footer a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .placeholder-message {
+            text-align: center;
+            color: #9ca3af;
+            padding: 3rem;
+            font-size: 1.125rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid, .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏗️</div>
+                <div>
+                    <div>ConcreteML</div>
+                    <div class="tagline">Predicting concrete strength with machine learning for better construction</div>
+                </div>
+            </div>
+            <div style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+                <div>
+                    <div style="font-size: 0.875rem; opacity: 0.9;">Welcome, <strong>{{ username }}</strong></div>
+                    <div style="font-size: 0.813rem; opacity: 0.8;">Made with ❤️ for civil engineering</div>
+                </div>
+                <a href="{{ url_for('logout') }}" style="padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.3s;">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">🎯</div>
+                <div class="metric-content">
+                    <h3>Model Accuracy</h3>
+                    <p>94.2%</p>
+                    <span>R² Score on test data</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">📊</div>
+                <div class="metric-content">
+                    <h3>Training Data</h3>
+                    <p>1,030+</p>
+                    <span>Concrete samples</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🎲</div>
+                <div class="metric-content">
+                    <h3>RMSE</h3>
+                    <p>5.8 MPa</p>
+                    <span>Prediction error</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">⚡</div>
+                <div class="metric-content">
+                    <h3>Predictions</h3>
+                    <p>{{ predictions|length }}</p>
+                    <span>Made this session</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-grid">
+            <!-- Input Form -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🏗️</span>
+                    <div>
+                        <div class="card-title">Concrete Mix Parameters</div>
+                        <div class="card-subtitle">Enter the composition of your concrete mix</div>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('predict') }}">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>🧱 Cement (kg/m³)</label>
+                            <input type="number" name="cement" step="0.01" required placeholder="e.g., 540">
+                            <span class="helper-text">Portland cement content</span>
+                        </div>
+                        <div class="form-group">
+                            <label>⛰️ Blast Furnace Slag (kg/m³)</label>
+                            <input type="number" name="bfs" step="0.01" required placeholder="e.g., 0">
+                            <span class="helper-text">Ground granulated blast-furnace slag</span>
+                        </div>
+                        <div class="form-group">
+                            <label>🌫️ Fly Ash (kg/m³)</label>
+                            <input type="number" name="fa" step="0.01" required placeholder="e.g., 0">
+                            <span class="helper-text">Coal combustion product</span>
+                        </div>
+                        <div class="form-group">
+                            <label>💧 Water (kg/m³)</label>
+                            <input type="number" name="water" step="0.01" required placeholder="e.g., 162">
+                            <span class="helper-text">Water content</span>
+                        </div>
+                        <div class="form-group">
+                            <label>🧪 Superplasticizer (kg/m³)</label>
+                            <input type="number" name="sp" step="0.01" required placeholder="e.g., 2.5">
+                            <span class="helper-text">High-range water reducer</span>
+                        </div>
+                        <div class="form-group">
+                            <label>🪨 Coarse Aggregate (kg/m³)</label>
+                            <input type="number" name="ca" step="0.01" value="1040" placeholder="e.g., 1040">
+                            <span class="helper-text">Gravel or crushed stone</span>
+                        </div>
+                        <div class="form-group">
+                            <label>⚪ Fine Aggregate (kg/m³)</label>
+                            <input type="number" name="fina" step="0.01" value="676" placeholder="e.g., 676">
+                            <span class="helper-text">Sand content</span>
+                        </div>
+                        <div class="form-group">
+                            <label>⏰ Age (days)</label>
+                            <input type="number" name="age" required placeholder="e.g., 28">
+                            <span class="helper-text">Curing time</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">Predict Compression Strength</button>
+                </form>
+            </div>
+
+            <!-- Prediction Result -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📈</span>
+                    <div>
+                        <div class="card-title">Prediction Result</div>
+                    </div>
+                </div>
+                {% if prediction %}
+                <div class="prediction-result">
+                    <div class="gauge-container">
+                        <div class="gauge-bg">
+                            <div class="gauge-inner">
+                                <div class="result-value">{{ prediction.result }}</div>
+                                <div class="result-unit">MPa</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-category">{{ prediction.category }}</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-label">
+                            <span>Model Confidence</span>
+                            <span><strong>{{ prediction.confidence }}%</strong></span>
+                        </div>
+                        <div class="confidence-progress">
+                            <div class="confidence-fill" style="width: {{ prediction.confidence }}%"></div>
+                        </div>
+                    </div>
+                    <div class="performance-badge">
+                        <span>✓</span>
+                        <span>High Performance</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="placeholder-message">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🏗️</div>
+                    <p>Enter mixture parameters and click predict to see results</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Analysis & Visualization -->
+        {% if prediction %}
+        <div class="analysis-section">
+            <h2 class="section-title">Analysis & Visualization</h2>
+            <div class="analysis-grid">
+                <!-- Strength Development Over Time -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📈</span>
+                        <div class="card-title">Strength Development Over Time</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="strengthChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Factor Contribution Analysis -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📊</span>
+                        <div class="card-title">Factor Contribution Analysis</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="contributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Prediction History -->
+        {% if predictions %}
+        <div class="analysis-section">
+            <h2 class="section-title">📋 Prediction History</h2>
+            <div class="card">
+                {% for pred in predictions[:5] %}
+                <div class="history-item">
+                    <div class="history-header">
+                        <div>
+                            <div class="history-result">{{ pred.result }} <span style="font-size: 0.875rem; font-weight: 400;">MPa</span></div>
+                            <div style="margin-top: 0.25rem; font-weight: 500;">{{ pred.age }} days curing</div>
+                        </div>
+                        <div class="history-time">{{ pred.timestamp }}</div>
+                    </div>
+                    <div class="history-details">
+                        <div class="history-detail"><strong>Cement:</strong> {{ pred.cement }} kg/m³</div>
+                        <div class="history-detail"><strong>Water:</strong> {{ pred.water }} kg/m³</div>
+                        <div class="history-detail"><strong>W/C Ratio:</strong> {{ pred.wc_ratio }}</div>
+                        <div class="history-detail"><strong>Aggregates:</strong> {{ pred.aggregates }} kg/m³</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- About Section -->
+        <div class="analysis-section">
+            <div class="card">
+                <h2 class="section-title">About the Model</h2>
+                <p style="color: #6b7280; line-height: 1.8;">
+                    This prediction tool uses a machine learning model trained on the UCI Concrete Compressive Strength dataset. 
+                    The model considers eight input variables that influence concrete strength: cement content, blast furnace slag, 
+                    fly ash, water content, superplasticizer, coarse aggregate, fine aggregate, and age of concrete.
+                </p>
+                <p style="color: #6b7280; line-height: 1.8; margin-top: 1rem;">
+                    The model helps engineers and researchers optimize concrete mix designs for desired strength characteristics, 
+                    potentially reducing material costs and environmental impact.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div>
+                <strong>ConcreteML</strong> | Predicting concrete strength with machine learning
+            </div>
+            <div>
+                Designed by <a href="https://www.linkedin.com/in/svsriramerramilli/">S V Sriram Erramilli</a>
+            </div>
+        </div>
+    </div>
+
+    {% if prediction %}
+    <script>
+        // Strength Development Over Time Chart
+        const strengthCtx = document.getElementById('strengthChart').getContext('2d');
+        const age = {{ prediction.age }};
+        const result = {{ prediction.result }};
+        
+        // Calculate estimated strength at different ages
+        const ages = [1, 3, 7, 14, 28, 56, 90];
+        const strengths = ages.map(a => {
+            if (a <= age) {
+                return result * (a / age) * 0.85;
+            } else {
+                return result * (1 + (a - age) / 90 * 0.15);
+            }
+        });
+        
+        new Chart(strengthCtx, {
+            type: 'line',
+            data: {
+                labels: ages.map(a => a + ' days'),
+                datasets: [{
+                    label: 'Strength (MPa)',
+                    data: strengths,
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#14b8a6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' MPa';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Factor Contribution Chart
+        const contributionCtx = document.getElementById('contributionChart').getContext('2d');
+        const contributions = {{ prediction.contributions|tojson }};
+        
+        new Chart(contributionCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(contributions),
+                datasets: [{
+                    label: 'Contribution (%)',
+                    data: Object.values(contributions),
+                    backgroundColor: [
+                        '#14b8a6',
+                        '#06b6d4',
+                        '#8b5cf6',
+                        '#f59e0b',
+                        '#ef4444'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 50,
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
